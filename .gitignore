@@ -1,1 +1,20 @@
+# Ignore node_modules if you add a backend later
+node_modules/
 
+# Ignore build output (if applicable)
+dist/
+build/
+
+# Ignore local config files
+*.config
+*.local
+
+# Ignore IDE files
+.idea/
+*.sublime-workspace
+*.sublime-project
+.vscode/
+
+# Ignore OS files
+.DS_Store
+Thumbs.db
