@@ -3,7 +3,13 @@ const chatInput = document.getElementById("chatInput");
 const sendBtn = document.getElementById("sendBtn");
 let projectHistory = { location: "", squareFootage: 0, materials: "Standard", trades: {} };
 
-sendBtn.addEventListener("click", sendMessage);
+// Ensure DOM is fully loaded before attaching event listeners
+document.addEventListener("DOMContentLoaded", () => {
+  sendBtn.addEventListener("click", sendMessage);
+  chatInput.addEventListener("keypress", (e) => {
+    if (e.key === "Enter") sendMessage();
+  });
+});
 
 function sendMessage() {
   const message = chatInput.value.trim();
@@ -13,21 +19,15 @@ function sendMessage() {
     chatContent.innerHTML += `<p><strong>TantyBot:</strong> ${response}</p>`;
     chatInput.value = "";
     chatContent.scrollTop = chatContent.scrollHeight;
+  } else {
+    console.log("No message to send—type something first!");
   }
 }
 
 function handleTantyBotResponse(message) {
   // Casual update of project history from any trade data if provided
-  $$(".panel").forEach(panel => {
-    const discipline = panel.dataset.discipline; // Note: This assumes integration with a form later
-    projectHistory.trades[discipline] = $$("tbody tr", panel).map(tr => ({
-      scope: $$("input", tr)[0].value || "N/A",
-      qty: parseFloat($$("input", tr)[1].value) || 0,
-      unit: $$("select", tr)[0].value || "N/A",
-      ucm: parseFloat($$("input", tr)[2].value) || 0,
-      ucl: parseFloat($$("input", tr)[3].value) || 0
-    }));
-  });
+  // Note: This assumes integration with a form later; for now, it’s a placeholder
+  // $$(".panel").forEach(panel => { ... }); // Uncomment if integrating with a form
 
   // Casual flow - no mandatory prompts
   if (message.toLowerCase().includes("hey") || message.toLowerCase().includes("hi")) {
@@ -47,14 +47,14 @@ function handleTantyBotResponse(message) {
     return updateEstimate(message);
   } else if (message.toLowerCase().includes("location")) {
     projectHistory.location = message.split("location")[1].trim() || projectHistory.location;
-    return projectHistory.location ? `Sweet, got ${projectHistory.location} locked in! Got a square footage or scope to add?” : "Hmm, where’s this project happening? Give me a city or country to work with!";
+    return projectHistory.location ? `Sweet, got ${projectHistory.location} locked in! Got a square footage or scope to add?` : "Hmm, where’s this project happening? Give me a city or country to work with!";
   } else if (message.toLowerCase().includes("square footage")) {
     const footage = parseFloat(message.match(/\d+/));
     if (!isNaN(footage)) projectHistory.squareFootage = footage;
-    return projectHistory.squareFootage ? `Awesome, ${projectHistory.squareFootage} m² it is! Ready for an estimate?” : "How big’s the space? Throw me a number in m²!";
+    return projectHistory.squareFootage ? `Awesome, ${projectHistory.squareFootage} m² it is! Ready for an estimate?` : "How big’s the space? Throw me a number in m²!";
   } else if (message.toLowerCase().includes("material")) {
     projectHistory.materials = message.split("material")[1].trim() || projectHistory.materials;
-    return `Got it, we’re using ${projectHistory.materials} materials. Let me know if you want a cost rundown with that!”;
+    return `Got it, we’re using ${projectHistory.materials} materials. Let me know if you want a cost rundown with that!`;
   } else if (message.toLowerCase().includes("price") || message.toLowerCase().includes("cost of")) {
     const item = message.split("of")[1]?.trim() || message.split("price")[1]?.trim();
     return item ? getPriceInquiry(item) : "Tell me what you’re curious about—e.g., ‘price of concrete’—and I’ll dig up some solid numbers for you!";
